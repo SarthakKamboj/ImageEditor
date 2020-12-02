@@ -1,9 +1,9 @@
-import { QueryResult } from 'pg';
 import { AccountResType, AccountType } from '../entity/accountTypes';
 
 export type UpdateType = {
     id: number;
     email?: string;
+    phone_number?: number;
     password?: string;
 };
 

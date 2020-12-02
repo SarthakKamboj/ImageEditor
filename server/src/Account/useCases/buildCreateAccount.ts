@@ -11,29 +11,12 @@ export const buildCreateAccount = (
     buildCreateAccountInputs: BuildCreateAccountInputs
 ) => {
     const {
-        dbFuncs: { customQuery, insert },
+        dbFuncs: { insert },
         hash,
     } = buildCreateAccountInputs;
 
     return async (accountInputs: AccountType): Promise<AccountResType> => {
         const { email, password, phone_number } = accountInputs;
-
-        // const text = 'select * from account where email = $1 limit 1';
-        // const values = [email];
-        // const accountDb = await customQuery(text, values);
-
-        // if (accountDb) {
-        //     return {
-        //         errors: [
-        //             {
-        //                 source: 'account creation',
-        //                 message:
-        //                     'account with this email or username already exists',
-        //             },
-        //         ],
-        //     };
-        // }
-
         const hashedPassword = await hash(password);
         const accountRes = makeAccount({
             email,

@@ -1,4 +1,4 @@
-import { AccountResType, AccountType, ErrorType } from '../entity/accountTypes';
+import { AccountResType, ErrorType } from '../entity/accountTypes';
 import { dbFunctions } from './useCaseTypes';
 
 type BuildUpdateTypes = {
@@ -28,8 +28,16 @@ export const buildUpdateAccount = (buildUpdateInputs: BuildUpdateTypes) => {
                 errors: [phoneNumberInValid],
             };
         }
-        const res = await update(id, 'phone_number', phoneNumber);
-        const account = res.rows[0] as AccountType;
+        const { account, errors } = await update({
+            id,
+            phone_number: phoneNumber,
+        });
+
+        if (errors) {
+            return {
+                errors,
+            };
+        }
 
         return { account };
     }
@@ -53,18 +61,12 @@ export const buildUpdateAccount = (buildUpdateInputs: BuildUpdateTypes) => {
             };
         }
 
-        const res = await update(id, 'email', email);
-        if (res.rows === []) {
+        const { account, errors } = await update({ id, email });
+        if (errors) {
             return {
-                errors: [
-                    {
-                        source: 'email update',
-                        message: 'account with this email does not exist',
-                    },
-                ],
+                errors,
             };
         }
-        const account = res.rows[0] as AccountType;
         return { account };
     }
 
@@ -76,8 +78,16 @@ export const buildUpdateAccount = (buildUpdateInputs: BuildUpdateTypes) => {
         newPassword: string;
     }): Promise<AccountResType> {
         const hashedPassword = await hash(newPassword);
-        const res = await update(id, 'password', hashedPassword);
-        const account = res.rows[0] as AccountType;
+        const { account, errors } = await update({
+            id,
+            password: hashedPassword,
+        });
+
+        if (errors) {
+            return {
+                errors,
+            };
+        }
         return { account };
     }
 };
