@@ -18,21 +18,21 @@ export const buildCreateAccount = (
     return async (accountInputs: AccountType): Promise<AccountResType> => {
         const { email, password, phone_number } = accountInputs;
 
-        const text = 'select * from account where email = $1 limit 1';
-        const values = [email];
-        const accountDb = await customQuery(text, values);
+        // const text = 'select * from account where email = $1 limit 1';
+        // const values = [email];
+        // const accountDb = await customQuery(text, values);
 
-        if (accountDb) {
-            return {
-                errors: [
-                    {
-                        source: 'account creation',
-                        message:
-                            'account with this email or username already exists',
-                    },
-                ],
-            };
-        }
+        // if (accountDb) {
+        //     return {
+        //         errors: [
+        //             {
+        //                 source: 'account creation',
+        //                 message:
+        //                     'account with this email or username already exists',
+        //             },
+        //         ],
+        //     };
+        // }
 
         const hashedPassword = await hash(password);
         const accountRes = makeAccount({
@@ -48,14 +48,14 @@ export const buildCreateAccount = (
             };
         }
 
-        return {
-            account: await insert({
-                email,
-                phone_number,
-                password: account.password,
-                created_at: account.created_at,
-                updated_at: account.updated_at,
-            }),
-        };
+        const insertRes = await insert({
+            email,
+            phone_number,
+            password: account.password,
+            created_at: account.created_at,
+            updated_at: account.updated_at,
+        });
+
+        return insertRes;
     };
 };

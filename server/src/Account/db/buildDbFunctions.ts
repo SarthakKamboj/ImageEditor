@@ -1,12 +1,10 @@
 import { Pool } from 'pg';
 import { knex } from '../../Pool';
 import { AccountResType, AccountType } from '../entity/accountTypes';
-import { dbFunctions } from '../useCases/useCaseTypes';
-import { begin, commit, connect, query, rollback } from './dbHelperFuncs';
+import { dbFunctions, UpdateType } from '../useCases/useCaseTypes';
 import { QueryParamsType } from './dbQueryParamsType';
 
 export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
-    deleteAccount(24).then((res) => console.log(res));
     return {
         insert,
         findByEmail,
@@ -18,34 +16,15 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
 
     async function findById(id: number): Promise<AccountResType> {
         try {
-            // const queryParams: QueryParamsType = {
-            //     text: 'select * from account where id = $1',
-            //     values: [id],
-            // };
-
-            // const res = await pool.query(queryParams);
-            // const account = res.rows[0] as AccountType;
-
-            // if (!account) {
-            //     return {
-            //         errors: [
-            //             {
-            //                 source: 'get account by id',
-            //                 message: 'account with this id does not exist',
-            //             },
-            //         ],
-            //     };
-            // }
-
             const source = 'get account by id';
-            const res = await knex
+            const accounts = await knex
                 .select('*')
                 .from('account')
                 .where({ id })
                 .returning('*')
                 .limit(1);
 
-            const account = res[0] as AccountType;
+            const account = accounts[0] as AccountType;
 
             if (!account) {
                 return {
@@ -76,15 +55,9 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
 
     async function deleteAccount(id: number): Promise<boolean> {
         try {
-            // const queryParams: QueryParamsType = {
-            //     text: 'delete from account where id = $1',
-            //     values: [id],
-            // };
-            // await pool.query(queryParams);
+            const res = await knex.del().from('account').where({ id });
 
-            const res = await knex.delete('*').from('account').where({ id });
-
-            if (res.length === 0) {
+            if (res === 0) {
                 return false;
             }
 
@@ -112,63 +85,84 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
         return;
     }
 
-    async function update(
-        id: number,
-        col: 'email' | 'password' | 'phone_number',
-        newValue: string | number
-    ) {
-        const queryParams: QueryParamsType = {
-            text: `update account set ${col} = $1, updated_at = NOW() where id = $2 returning *`,
-            values: [newValue, id],
+    async function update(updateInputs: UpdateType): Promise<AccountResType> {
+        const { id, ...newVals } = updateInputs;
+        const source = 'update';
+
+        let accounts = await knex('account')
+            .update(newVals)
+            .where({ id })
+            .returning('*')
+            .limit(1);
+
+        if (accounts.length === 0) {
+            return {
+                errors: [
+                    {
+                        source,
+                        message: 'account with this id does not exist',
+                    },
+                ],
+            };
+        }
+
+        const account = accounts[0] as AccountType;
+
+        return {
+            account,
         };
-        return await pool.query(queryParams);
     }
 
-    async function insert({
-        email,
-        password,
-        phone_number,
-    }: // username,
-    AccountType): Promise<AccountType | undefined> {
-        const client = await connect(pool);
+    async function insert(accountInputs: AccountType): Promise<AccountResType> {
+        const { email, password, phone_number } = accountInputs;
+        const source = 'insert';
+
         try {
-            await begin(client);
-            const queryParams: QueryParamsType = {
-                text:
-                    'insert into account (email, password, phone_number) values($1,$2,$3) returning *',
-                values: [email, password, phone_number],
+            const res = await knex
+                .insert({ email, password, phone_number })
+                .into('account')
+                .returning('*')
+                .limit(1);
+            const account = res[0] as AccountType;
+            return {
+                account,
             };
-            const res = await query(client, queryParams);
-            const insertedData = res.rows[0] as AccountType;
-            await commit(client);
-            return insertedData;
-        } catch (err: any) {
-            await rollback(client);
-            return;
+        } catch (e: any) {
+            const code = parseInt(e.code);
+            if (code === 23505) {
+                return {
+                    errors: [
+                        {
+                            source,
+                            message: 'this email already exists',
+                        },
+                    ],
+                };
+            }
         }
+        return {};
     }
 
     async function findByEmail(
         email: string
     ): Promise<AccountType | undefined> {
-        const client = await pool.connect();
-
         try {
-            const queryParams: QueryParamsType = {
-                text: 'select * from account where email = $1 limit 1',
-                values: [email],
-            };
-            await client.query('BEGIN');
-            const res = await client.query(queryParams);
-            const account = res.rows[0] as AccountType;
-            await client.query('COMMIT');
+            const res = await knex
+                .select('*')
+                .from('account')
+                .where({ email })
+                .returning('*')
+                .limit(1);
 
-            client.release();
+            const account = res[0] as AccountType;
+
+            if (!account) {
+                return undefined;
+            }
+
             return account;
         } catch (err: any) {
-            await client.query('ROLLBACK');
             console.error(err.stack);
-            client.release();
             return;
         }
     }

@@ -1,15 +1,17 @@
 import { QueryResult } from 'pg';
 import { AccountResType, AccountType } from '../entity/accountTypes';
 
+export type UpdateType = {
+    id: number;
+    email?: string;
+    password?: string;
+};
+
 export type dbFunctions = {
     findById: (id: number) => Promise<AccountResType>;
     findByEmail: (email: string) => Promise<AccountType | undefined>;
-    insert: (account: AccountType) => Promise<AccountType | undefined>;
-    update: (
-        id: number,
-        col: 'email' | 'password' | 'phone_number',
-        newValue: string | number
-    ) => Promise<QueryResult<any>>;
+    insert: (account: AccountType) => Promise<AccountResType>;
+    update: (updateInputs: UpdateType) => Promise<AccountResType>;
     findByPhoneNumber?: (id: number) => Promise<AccountType | undefined>;
     getPassword?: (id: string) => Promise<string | undefined>;
     customQuery: (
