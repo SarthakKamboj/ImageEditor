@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    /* font-family: 'Poppins', sans-serif !important; */
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background: none;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    overflow-y: visible;
+}
+
+/* the div wrapper fo the nextjs app*/
+#__next {
+    height: 100%;
+}
