@@ -6,7 +6,7 @@ import { begin, commit, connect, query, rollback } from './dbHelperFuncs';
 import { QueryParamsType } from './dbQueryParamsType';
 
 export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
-    findById(18).then((res) => console.log(res));
+    deleteAccount(24).then((res) => console.log(res));
     return {
         insert,
         findByEmail,
@@ -76,11 +76,18 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
 
     async function deleteAccount(id: number): Promise<boolean> {
         try {
-            const queryParams: QueryParamsType = {
-                text: 'delete from account where id = $1',
-                values: [id],
-            };
-            await pool.query(queryParams);
+            // const queryParams: QueryParamsType = {
+            //     text: 'delete from account where id = $1',
+            //     values: [id],
+            // };
+            // await pool.query(queryParams);
+
+            const res = await knex.delete('*').from('account').where({ id });
+
+            if (res.length === 0) {
+                return false;
+            }
+
             return true;
         } catch (e) {
             console.log(e);
