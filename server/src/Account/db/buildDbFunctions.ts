@@ -118,12 +118,12 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
         const source = 'insert';
 
         try {
-            const res = await knex
+            const accounts = await knex
                 .insert({ email, password, phone_number })
                 .into('account')
                 .returning('*')
                 .limit(1);
-            const account = res[0] as AccountType;
+            const account = accounts[0] as AccountType;
             return {
                 account,
             };
@@ -147,14 +147,14 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
         email: string
     ): Promise<AccountType | undefined> {
         try {
-            const res = await knex
+            const accounts = await knex
                 .select('*')
                 .from('account')
                 .where({ email })
                 .returning('*')
                 .limit(1);
 
-            const account = res[0] as AccountType;
+            const account = accounts[0] as AccountType;
 
             if (!account) {
                 return undefined;
