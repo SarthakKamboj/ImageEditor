@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
-import { typeDefs } from './typeDefs';
 import express from 'express';
 import redis from 'redis';
 import session from 'express-session';

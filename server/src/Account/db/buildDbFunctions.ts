@@ -1,14 +1,8 @@
 import { Pool } from 'pg';
 import { AccountResType, AccountType } from '../entity/accountTypes';
 import { dbFunctions } from '../useCases/useCaseTypes';
-import {
-    begin,
-    commit,
-    connect,
-    query,
-    rollback,
-} from '../../utils/dbHelperFuncs';
-import { QueryParamsType } from '../../utils/dbQueryParamsType';
+import { begin, commit, connect, query, rollback } from './dbHelperFuncs';
+import { QueryParamsType } from './dbQueryParamsType';
 
 export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
     return {

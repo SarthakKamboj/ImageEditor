@@ -21,12 +21,7 @@ const createAccount = buildCreateAccount({ dbFuncs, hash });
 const loginAccount = buildLoginAccount({ dbFuncs, verify });
 const deleteAccount = buildDeleteAccount({ dbFuncs });
 const getAccount = buildGetAccount({ dbFuncs });
-const {
-    updateEmail,
-    // updateUsername,
-    updatePassword,
-    updatePhoneNumber,
-} = buildUpdateAccount({
+const { updateEmail, updatePassword, updatePhoneNumber } = buildUpdateAccount({
     dbFuncs,
     hash,
     isValidPhoneNumber,
@@ -35,7 +30,6 @@ const verifyPassword = buildVerifyPassword({ dbFuncs, verify });
 
 export {
     updateEmail,
-    // updateUsername,
     updatePassword,
     createAccount,
     loginAccount,

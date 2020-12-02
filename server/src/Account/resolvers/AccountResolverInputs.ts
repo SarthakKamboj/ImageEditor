@@ -6,9 +6,6 @@ export class LoginInput {
     @Field({ nullable: true })
     email: string;
 
-    // @Field({ nullable: true })
-    // username: string;
-
     @Field()
     password: string;
 }
@@ -26,9 +23,6 @@ export class EmailPasswordInput {
 export class CreateAccountType {
     @Field()
     email: string;
-
-    // @Field()
-    // username: string;
 
     @Field()
     password: string;

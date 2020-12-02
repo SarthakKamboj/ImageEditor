@@ -7,18 +7,21 @@ type BuildCreateAccountInputs = {
     hash: (str: string) => Promise<string>;
 };
 
-export const buildCreateAccount = ({
-    dbFuncs: { customQuery, insert },
-    hash,
-}: BuildCreateAccountInputs) => {
-    return async ({
-        email,
-        password,
-        phone_number,
-    }: AccountType): Promise<AccountResType> => {
+export const buildCreateAccount = (
+    buildCreateAccountInputs: BuildCreateAccountInputs
+) => {
+    const {
+        dbFuncs: { customQuery, insert },
+        hash,
+    } = buildCreateAccountInputs;
+
+    return async (accountInputs: AccountType): Promise<AccountResType> => {
+        const { email, password, phone_number } = accountInputs;
+
         const text = 'select * from account where email = $1 limit 1';
         const values = [email];
         const accountDb = await customQuery(text, values);
+
         if (accountDb) {
             return {
                 errors: [

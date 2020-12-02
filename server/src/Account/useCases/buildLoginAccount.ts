@@ -11,14 +11,14 @@ type LoginAccountType = {
     password: string;
 };
 
-export const buildLoginAccount = ({
-    dbFuncs: { findByEmail },
-    verify,
-}: BuildLoginAccountType) => {
-    return async ({
-        password,
-        email,
-    }: LoginAccountType): Promise<AccountResType> => {
+export const buildLoginAccount = (buildLoginInputs: BuildLoginAccountType) => {
+    const {
+        dbFuncs: { findByEmail },
+        verify,
+    } = buildLoginInputs;
+    return async (loginInputs: LoginAccountType): Promise<AccountResType> => {
+        const { password, email } = loginInputs;
+
         if (email === undefined) {
             return {
                 errors: [

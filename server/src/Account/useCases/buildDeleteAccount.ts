@@ -10,11 +10,16 @@ type DeleteAccountResType = {
     deleted?: boolean;
 };
 
-export const buildDeleteAccount = ({
-    dbFuncs: { deleteAccount },
-}: BuildDeleteAccountType) => {
+export const buildDeleteAccount = (
+    buildDeleteAccountInputs: BuildDeleteAccountType
+) => {
+    const {
+        dbFuncs: { deleteAccount },
+    } = buildDeleteAccountInputs;
+
     return async (id: number): Promise<DeleteAccountResType> => {
         const source = 'account deletion';
+
         const deleted = await deleteAccount(id);
         if (!deleted) {
             return {
@@ -27,6 +32,7 @@ export const buildDeleteAccount = ({
                 ],
             };
         }
+
         return {
             deleted,
         };

@@ -7,11 +7,12 @@ type BuildUpdateTypes = {
     isValidPhoneNumber: (phoneNumber: number) => ErrorType | undefined;
 };
 
-export const buildUpdateAccount = ({
-    dbFuncs: { update, findByEmail },
-    hash,
-    isValidPhoneNumber,
-}: BuildUpdateTypes) => {
+export const buildUpdateAccount = (buildUpdateInputs: BuildUpdateTypes) => {
+    const {
+        dbFuncs: { update, findByEmail },
+        hash,
+        isValidPhoneNumber,
+    } = buildUpdateInputs;
     return { updateEmail, updatePassword, updatePhoneNumber };
 
     async function updatePhoneNumber({

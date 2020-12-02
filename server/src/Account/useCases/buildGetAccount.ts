@@ -4,9 +4,11 @@ type BuildGetAccountType = {
     dbFuncs: dbFunctions;
 };
 
-export const buildGetAccount = ({
-    dbFuncs: { findById },
-}: BuildGetAccountType) => {
+export const buildGetAccount = (buildGetAccountInputs: BuildGetAccountType) => {
+    const {
+        dbFuncs: { findById },
+    } = buildGetAccountInputs;
+
     return async (id: number): Promise<AccountResType> => {
         if (!id) {
             return {
@@ -18,6 +20,7 @@ export const buildGetAccount = ({
                 ],
             };
         }
+
         return await findById(id);
     };
 };

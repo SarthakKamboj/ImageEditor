@@ -6,17 +6,23 @@ type BuildVerifyPasswordType = {
     verify: (password: string, hashedPassword: string) => Promise<boolean>;
 };
 
-export const buildVerifyPassword = ({
-    dbFuncs: { findById },
-    verify,
-}: BuildVerifyPasswordType) => {
-    return async ({
-        id,
-        password,
-    }: {
-        id: number;
-        password: string;
-    }): Promise<AccountResType> => {
+type VerifyPasswordInputType = {
+    id: number;
+    password: string;
+};
+
+export const buildVerifyPassword = (
+    buildVerifyPasswordInputs: BuildVerifyPasswordType
+) => {
+    const {
+        dbFuncs: { findById },
+        verify,
+    } = buildVerifyPasswordInputs;
+
+    return async (
+        verifyPasswordInputs: VerifyPasswordInputType
+    ): Promise<AccountResType> => {
+        const { id, password } = verifyPasswordInputs;
         const { account } = await findById(id);
         if (account === undefined) {
             return {
