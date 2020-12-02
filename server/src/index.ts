@@ -40,7 +40,6 @@ const corsOptions = {
         );
 
         const apolloServer = new ApolloServer({
-            // typeDefs,
             schema: await getSchema(),
             context: ({ req, res }) => ({ req, res }),
         });
