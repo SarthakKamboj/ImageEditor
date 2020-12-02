@@ -1,10 +1,12 @@
 import { Pool } from 'pg';
+import { knex } from '../../Pool';
 import { AccountResType, AccountType } from '../entity/accountTypes';
 import { dbFunctions } from '../useCases/useCaseTypes';
 import { begin, commit, connect, query, rollback } from './dbHelperFuncs';
 import { QueryParamsType } from './dbQueryParamsType';
 
 export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
+    findById(18).then((res) => console.log(res));
     return {
         insert,
         findByEmail,
@@ -16,19 +18,40 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
 
     async function findById(id: number): Promise<AccountResType> {
         try {
-            const queryParams: QueryParamsType = {
-                text: 'select * from account where id = $1',
-                values: [id],
-            };
+            // const queryParams: QueryParamsType = {
+            //     text: 'select * from account where id = $1',
+            //     values: [id],
+            // };
 
-            const res = await pool.query(queryParams);
-            const account = res.rows[0] as AccountType;
+            // const res = await pool.query(queryParams);
+            // const account = res.rows[0] as AccountType;
+
+            // if (!account) {
+            //     return {
+            //         errors: [
+            //             {
+            //                 source: 'get account by id',
+            //                 message: 'account with this id does not exist',
+            //             },
+            //         ],
+            //     };
+            // }
+
+            const source = 'get account by id';
+            const res = await knex
+                .select('*')
+                .from('account')
+                .where({ id })
+                .returning('*')
+                .limit(1);
+
+            const account = res[0] as AccountType;
 
             if (!account) {
                 return {
                     errors: [
                         {
-                            source: 'get account by id',
+                            source,
                             message: 'account with this id does not exist',
                         },
                     ],
@@ -44,7 +67,6 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
                 errors: [
                     {
                         source: 'get account by id',
-
                         message: e.message,
                     },
                 ],
