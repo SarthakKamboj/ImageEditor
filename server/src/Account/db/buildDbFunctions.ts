@@ -1,10 +1,11 @@
-import { Pool } from 'pg';
-import { knex } from '../../Pool';
 import { AccountResType, AccountType } from '../entity/accountTypes';
 import { dbFunctions, UpdateType } from '../useCases/useCaseTypes';
-import { QueryParamsType } from './dbQueryParamsType';
+import { handleDbError } from './dbErrorHandler';
 
-export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
+export const buildDbFunctions = (knex: any): dbFunctions => {
+    customQuery('select * from account where id = ?', [19]).then((res) =>
+        console.log(res)
+    );
     return {
         insert,
         findByEmail,
@@ -15,8 +16,8 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
     };
 
     async function findById(id: number): Promise<AccountResType> {
+        const source = 'get account by id';
         try {
-            const source = 'get account by id';
             const accounts = await knex
                 .select('*')
                 .from('account')
@@ -45,7 +46,7 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
             return {
                 errors: [
                     {
-                        source: 'get account by id',
+                        source,
                         message: e.message,
                     },
                 ],
@@ -70,47 +71,52 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
 
     async function customQuery(
         text: string,
-        values: string[]
-    ): Promise<AccountType | undefined> {
-        const queryParams: QueryParamsType = {
-            text,
-            values,
-        };
+        values: Array<string | number>
+    ): Promise<AccountType[] | undefined> {
         try {
-            const res = await pool.query(queryParams);
-            return res.rows[0] as AccountType;
+            const res = await knex.raw(text, values);
+            const accounts = res.rows;
+            return accounts;
         } catch (err: any) {
-            console.log(err.stack);
+            console.log(err);
         }
         return;
     }
 
     async function update(updateInputs: UpdateType): Promise<AccountResType> {
-        const { id, ...newVals } = updateInputs;
         const source = 'update';
 
-        let accounts = await knex('account')
-            .update(newVals)
-            .where({ id })
-            .returning('*')
-            .limit(1);
+        try {
+            const { id, ...newVals } = updateInputs;
 
-        if (accounts.length === 0) {
+            let accounts = await knex('account')
+                .update(newVals)
+                .where({ id })
+                .returning('*')
+                .limit(1);
+
+            if (accounts.length === 0) {
+                return {
+                    errors: [
+                        {
+                            source,
+                            message: 'account with this id does not exist',
+                        },
+                    ],
+                };
+            }
+
+            const account = accounts[0] as AccountType;
+
             return {
-                errors: [
-                    {
-                        source,
-                        message: 'account with this id does not exist',
-                    },
-                ],
+                account,
+            };
+        } catch (e: any) {
+            const errors = handleDbError(source, e);
+            return {
+                errors,
             };
         }
-
-        const account = accounts[0] as AccountType;
-
-        return {
-            account,
-        };
     }
 
     async function insert(accountInputs: AccountType): Promise<AccountResType> {
@@ -128,18 +134,12 @@ export const buildDbFunctions = ({ pool }: { pool: Pool }): dbFunctions => {
                 account,
             };
         } catch (e: any) {
-            const code = parseInt(e.code);
-            if (code === 23505) {
-                return {
-                    errors: [
-                        {
-                            source,
-                            message: 'this email already exists',
-                        },
-                    ],
-                };
-            }
+            const errors = handleDbError(source, e);
+            return {
+                errors,
+            };
         }
+
         return {};
     }
 

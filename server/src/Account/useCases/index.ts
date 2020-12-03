@@ -4,7 +4,10 @@ import bcrypt from 'bcrypt';
 import { buildLoginAccount } from './buildLoginAccount';
 import { buildUpdateAccount } from './buildUpdateUseCases';
 import { buildVerifyPassword } from './buildVerifyPassword';
-import { isValidPhoneNumber } from '../entity';
+import {
+    isValidEmail,
+    isValidPhoneNumber,
+} from '../entity/validationFunctions';
 import { buildDeleteAccount } from './buildDeleteAccount';
 import { buildGetAccount } from './buildGetAccount';
 
@@ -25,6 +28,7 @@ const { updateEmail, updatePassword, updatePhoneNumber } = buildUpdateAccount({
     dbFuncs,
     hash,
     isValidPhoneNumber,
+    isValidEmail,
 });
 const verifyPassword = buildVerifyPassword({ dbFuncs, verify });
 

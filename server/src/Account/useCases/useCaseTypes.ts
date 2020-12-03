@@ -17,6 +17,6 @@ export type dbFunctions = {
     customQuery: (
         text: string,
         values: string[]
-    ) => Promise<AccountType | undefined>;
+    ) => Promise<AccountType[] | undefined>;
     deleteAccount: (id: number) => Promise<boolean>;
 };

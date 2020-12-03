@@ -1,4 +1,4 @@
 import { buildDbFunctions } from './buildDbFunctions';
-import { pool } from '../../Pool';
+import { knex } from '../../Knex';
 
-export const dbFunctions = buildDbFunctions({ pool });
+export const dbFunctions = buildDbFunctions(knex);

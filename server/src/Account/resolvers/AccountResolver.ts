@@ -245,7 +245,7 @@ export class AccountResolver {
         }
         const { account, errors } = await updateEmail({
             id: accountId,
-            email: newEmail,
+            newEmail,
         });
         if (account === undefined) {
             return { errors };
@@ -255,7 +255,7 @@ export class AccountResolver {
 
     @Mutation(() => AccountResType)
     async updatePhoneNumber(
-        @Arg('phoneNumber', () => Float) phoneNumber: number,
+        @Arg('newPhoneNumber', () => Float) newPhoneNumber: number,
         @Ctx() { req }: ContextType
     ): Promise<AccountResType> {
         const accountId = req.session.accountId;
@@ -271,7 +271,7 @@ export class AccountResolver {
         }
         const { account, errors } = await updatePhoneNumber({
             id: accountId,
-            phoneNumber,
+            newPhoneNumber,
         });
         if (account === undefined) {
             return { errors };
