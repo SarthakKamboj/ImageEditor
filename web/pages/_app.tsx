@@ -7,19 +7,19 @@ import type { AppProps /*, AppContext */ } from 'next/app';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
-const theme = createMuiTheme({
-    palette: {
-        primary: {
-            main: '#000000',
-        },
-    },
-});
+// const theme = createMuiTheme({
+// palette: {
+//     primary: {
+//         main: '#000000',
+//     },
+// },
+// });
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
-        <ThemeProvider theme={theme}>
-            <Component {...pageProps} />
-        </ThemeProvider>
+        // <ThemeProvider theme={theme}>
+        <Component {...pageProps} />
+        // </ThemeProvider>
     );
 }
 
